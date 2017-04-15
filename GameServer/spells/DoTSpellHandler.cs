@@ -64,11 +64,18 @@ namespace DOL.GS.Spells
 		/// and therefore overwritable by better versions
 		/// spells that are overwritable cannot stack
 		/// </summary>
-		/// <param name="compare"></param>
+		/// <param name="compare">The GameSpellEffect that will be tested if it can be overwritten by the calling DotSpellHandler</param>
 		/// <returns></returns>
 		public override bool IsOverwritable(GameSpellEffect compare)
 		{
-			return Spell.SpellType == compare.Spell.SpellType && Spell.DamageType == compare.Spell.DamageType && SpellLine.IsBaseLine == compare.SpellHandler.SpellLine.IsBaseLine;
+			// If the spell to compare is not a DOT we don't want to overwrite it
+			if (compare.Spell.SpellType != this.Spell.SpellType)
+				return false;
+			// Always allow DOT overwriting if EffectGroup is not defined explicitly in the Database
+			if (compare.Spell.EffectGroup <= 0 || this.Spell.EffectGroup <= 0)
+				return true;
+			// DOTs of different EffectGroup can stack. Same group can be overwritten.
+			return compare.Spell.EffectGroup == this.Spell.EffectGroup;
 		}
 
 		/// <summary>
